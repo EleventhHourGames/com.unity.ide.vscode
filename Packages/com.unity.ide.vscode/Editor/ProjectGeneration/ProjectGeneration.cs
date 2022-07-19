@@ -116,7 +116,6 @@ namespace VSCodeEditor
         static readonly string[] k_ReimportSyncExtensions = { ".dll", ".asmdef" };
 
         string[] m_ProjectSupportedExtensions = Array.Empty<string>();
-        const string k_TargetLanguageVersion = "latest";
 
         public string ProjectDirectory { get; }
         IAssemblyNameProvider IGenerator.AssemblyNameProvider => m_AssemblyNameProvider;
@@ -560,7 +559,7 @@ namespace VSCodeEditor
 #if UNITY_2020_2_OR_NEWER
             return assembly.compilerOptions.LanguageVersion;
 #else
-            return k_TargetLanguageVersion;
+            return null;
 #endif
         }
 
@@ -677,9 +676,12 @@ namespace VSCodeEditor
         {
             builder.Append(@"<?xml version=""1.0"" encoding=""utf-8""?>").Append(k_WindowsNewline);
             builder.Append(@"<Project ToolsVersion=""").Append(k_ToolsVersion).Append(@""" DefaultTargets=""Build"" xmlns=""").Append(MSBuildNamespaceUri).Append(@""">").Append(k_WindowsNewline);
-            builder.Append(@"  <PropertyGroup>").Append(k_WindowsNewline);
-            builder.Append(@"    <LangVersion>").Append(langVersion).Append("</LangVersion>").Append(k_WindowsNewline);
-            builder.Append(@"  </PropertyGroup>").Append(k_WindowsNewline);
+            if (!string.IsNullOrEmpty(langVersion))
+            {
+                builder.Append(@"  <PropertyGroup>").Append(k_WindowsNewline);
+                builder.Append(@"    <LangVersion>").Append(langVersion).Append("</LangVersion>").Append(k_WindowsNewline);
+                builder.Append(@"  </PropertyGroup>").Append(k_WindowsNewline);
+            }
             builder.Append(@"  <PropertyGroup>").Append(k_WindowsNewline);
             builder.Append(@"    <Configuration Condition="" '$(Configuration)' == '' "">Debug</Configuration>").Append(k_WindowsNewline);
             builder.Append(@"    <Platform Condition="" '$(Platform)' == '' "">AnyCPU</Platform>").Append(k_WindowsNewline);
